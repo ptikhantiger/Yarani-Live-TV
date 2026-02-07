@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yarani Live TV - T20 World Cup 2026</title>
+    <!-- HLS.js for stream playback -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, doc, setDoc, deleteDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+
+        // Global config from environment
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'yarani-live-tv';
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const viewerCountElem = document.getElementById('viewer-count');
+
+        const initRealTimeViewers = async () => {
+            // Rule 3: Auth before queries
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth failed:", error);
+            }
+
+            onAuthStateChanged(auth, async (user) => {
+                if (!user) return;
+
+                // Rule 1: Strict Paths for public data
+                // Create a record of this user's active session
+                const sessionDoc = doc(db, 'artifacts', appId, 'public', 'data', 'active_sessions', user.uid);
+                
+                // Add the user to the active sessions
+                await setDoc(sessionDoc, { lastActive: Date.now() });
+
+                // Cleanup session on exit
+                window.addEventListener('beforeunload', () => {
+                    deleteDoc(sessionDoc);
+                });
+
+                // Rule 2: No complex queries - just listen to the collection
+                const sessionsRef = collection(db, 'artifacts', appId, 'public', 'data', 'active_sessions');
+                onSnapshot(sessionsRef, (snapshot) => {
+                    const count = snapshot.size;
+                    // Format count for display (e.g., if 1000+ users, show 1.0k)
+                    if (count >= 1000) {
+                        viewerCountElem.innerText = (count / 1000).toFixed(1) + 'k';
+                    } else {
+                        viewerCountElem.innerText = count;
+                    }
+                }, (error) => {
+                    console.error("Snapshot error:", error);
+                    viewerCountElem.innerText = "1"; // Fallback to current user
+                });
+            });
+        };
+
+        initRealTimeViewers();
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --accent: #38bdf8;
+            --live-red: #ef4444;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-weight: 800;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-primary);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .logo span {
+            color: var(--accent);
+        }
+
+        /* Main Layout */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            padding: 30px 5%;
+            max-width: 1100px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* Introduction Section */
+        .intro-section {
+            text-align: center;
+            padding: 20px 0;
+        }
+
+        .intro-section h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            background: linear-gradient(to right, #fff, var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .intro-section p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Video Section */
+        .video-container {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .player-wrapper {
+            position: relative;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            aspect-ratio: 16 / 9;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--border);
+        }
+
+        video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Error/Loading Overlay */
+        #video-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid rgba(56, 189, 248, 0.1);
+            border-left-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Custom Notification Toast */
+        #share-toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--accent);
+            color: var(--bg-dark);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 1000;
+        }
+
+        #share-toast.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        footer {
+            padding: 40px 5%;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+
+        @media (max-width: 640px) {
+            header { padding: 1rem 15px; }
+            main { padding: 20px 15px; }
+            .intro-section h1 { font-size: 1.75rem; }
+            .intro-section p { font-size: 0.95rem; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <a href="#" class="logo"><i data-lucide="tv"></i> YARANI<span> LIVE TV</span></a>
+    <div style="display: flex; gap: 15px; align-items: center;">
+        <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; display: flex; align-items: center; gap: 6px;" id="viewer-container">
+            <span style="width: 6px; height: 6px; background: var(--live-red); border-radius: 50%; animation: pulse 1s infinite alternate;"></span>
+            <span id="viewer-count">...</span> Watching Now
+        </span>
+        <button id="share-btn" style="background: var(--accent); color: var(--bg-dark); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;">
+            <i data-lucide="share-2" style="width: 16px;"></i> Share
+        </button>
+    </div>
+</header>
+
+<main>
+    <!-- Introduction Section -->
+    <div class="intro-section">
+        <h1>T20 World Cup 2026 Headquarters</h1>
+        <p>Welcome to Yarani Live TV. Your home for every boundary, every wicket, and every moment of the 2026 T20 World Cup. Watch all season matches here in high definition.</p>
+    </div>
+
+    <div class="video-container">
+        <!-- Video Player -->
+        <div class="player-wrapper">
+            <div id="video-overlay">
+                <div class="spinner" id="spinner"></div>
+                <div id="overlay-msg" style="font-weight: 600; font-size: 1.1rem;">Connecting to Yarani Live Stream...</div>
+            </div>
+            
+            <video id="video" controls autoplay playsinline poster="https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=1200&auto=format&fit=crop"></video>
+        </div>
+    </div>
+</main>
+
+<div id="share-toast">Link Copied! Share with friends.</div>
+
+<footer>
+    <p>&copy; 2026 Yarani Live TV. All Rights Reserved. Catch all ICC T20 World Cup 2026 matches live right here.</p>
+</footer>
+
+<script>
+    // Initialize Icons
+    lucide.createIcons();
+
+    const video = document.getElementById('video');
+    const overlay = document.getElementById('video-overlay');
+    const overlayMsg = document.getElementById('overlay-msg');
+    const spinner = document.getElementById('spinner');
+    const shareBtn = document.getElementById('share-btn');
+    const toast = document.getElementById('share-toast');
+    
+    // Live Stream HLS URL
+    const videoSrc = 'https://tencentcdn2.tamashaweb.com/v1/0192bed4e5f11ea506ec1afe4c6abd/0192bed664ae1ea506491378f278b7/tmsh_srt_output_480p.m3u8';
+
+    // --- Functional Share Button ---
+    shareBtn.addEventListener('click', async () => {
+        const shareData = {
+            title: 'Yarani Live TV',
+            text: 'Watching T20 World Cup 2026 Live on Yarani TV! Join me for the action.',
+            url: window.location.href
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                const dummy = document.createElement('input');
+                document.body.appendChild(dummy);
+                dummy.value = window.location.href;
+                dummy.select();
+                document.execCommand('copy');
+                document.body.removeChild(dummy);
+                showToast("Link copied to clipboard!");
+            }
+        } catch (err) {
+            console.error('Share failed:', err);
+        }
+    });
+
+    function showToast(msg) {
+        toast.innerText = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // --- Video Player Logic ---
+    function showOverlay(msg, showSpinner = true) {
+        overlay.style.display = 'flex';
+        overlayMsg.innerText = msg;
+        spinner.style.display = showSpinner ? 'block' : 'none';
+    }
+
+    function hideOverlay() {
+        overlay.style.display = 'none';
+    }
+
+    function initPlayer() {
+        showOverlay("Connecting to Yarani Live TV...");
+
+        if (Hls.isSupported()) {
+            const hls = new Hls({ 
+                enableWorker: true, 
+                lowLatencyMode: true,
+                backBufferLength: 60
+            });
+            
+            hls.loadSource(videoSrc);
+            hls.attachMedia(video);
+            
+            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                hideOverlay();
+                video.play().catch(() => {
+                    showOverlay("Tap to Join the World Cup Action", false);
+                    overlay.style.cursor = "pointer";
+                    overlay.onclick = () => { 
+                        video.play(); 
+                        hideOverlay(); 
+                    };
+                });
+            });
+
+            hls.on(Hls.Events.ERROR, function (event, data) {
+                if (data.fatal) {
+                    switch (data.type) {
+                        case Hls.ErrorTypes.NETWORK_ERROR:
+                            showOverlay("Network issue. Reconnecting...", true);
+                            hls.startLoad();
+                            break;
+                        case Hls.ErrorTypes.MEDIA_ERROR:
+                            showOverlay("Media error. Recovering...", true);
+                            hls.recoverMediaError();
+                            break;
+                        default:
+                            showOverlay("Stream currently unavailable. Please refresh.", false);
+                            hls.destroy();
+                            break;
+                    }
+                }
+            });
+        } 
+        else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            video.src = videoSrc;
+            video.addEventListener('loadedmetadata', () => { 
+                hideOverlay(); 
+                video.play(); 
+            });
+        }
+    }
+
+    window.onload = initPlayer;
+</script>
+
+<style>
+    @keyframes pulse {
+        from { transform: scale(1); opacity: 1; }
+        to { transform: scale(1.3); opacity: 0.5; }
+    }
+</style>
+
+</body>
+</html>
