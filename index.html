@@ -141,25 +141,25 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 3px;
             padding: 20px 5%;
             max-width: 1100px;
             margin: 0 auto;
             width: 100%;
-            min-height: 0;
+            min-height: 100vh;
             justify-content: center;
         }
 
         /* Introduction Section */
         .intro-section {
             text-align: center;
-            padding: 10px 0;
+           
         }
 
         .intro-section h1 {
             font-size: 1.75rem;
-            font-weight: 800;
-            margin-bottom: 8px;
+            font-weight: 900;
+            margin-bottom: 4px;
             background: linear-gradient(to right, #fff, var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -465,7 +465,7 @@
             hls.on(Hls.Events.MANIFEST_PARSED, function() {
                 hideOverlay();
                 video.play().catch(() => {
-                    showOverlay("Tap to Join the World Cup Action", false);
+                    showOverlay("Tap to play Live Match", false);
                     overlay.style.cursor = "pointer";
                     overlay.onclick = () => { 
                         video.play(); 
