@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="img.png">
     <title>Yarani Live TV - T20 World Cup 2026</title>
     <!-- HLS.js for stream playback -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -89,13 +90,18 @@
             padding: 0;
         }
 
+        html, body {
+            height: 100%;
+        }
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-dark);
             color: var(--text-primary);
             line-height: 1.5;
             overflow-x: hidden;
-            min-height: 100vh;
+            height: 100vh;
+            height: 100dvh;
             display: flex;
             flex-direction: column;
         }
@@ -115,8 +121,8 @@
         }
 
         .logo {
-            font-weight: 800;
-            font-size: 1.25rem;
+            font-weight: 600;
+            font-size: 1rem;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -135,23 +141,25 @@
             flex: 1;
             display: flex;
             flex-direction: column;
-            gap: 24px;
-            padding: 30px 5%;
+            gap: 16px;
+            padding: 20px 5%;
             max-width: 1100px;
             margin: 0 auto;
             width: 100%;
+            min-height: 0;
+            justify-content: center;
         }
 
         /* Introduction Section */
         .intro-section {
             text-align: center;
-            padding: 20px 0;
+            padding: 10px 0;
         }
 
         .intro-section h1 {
-            font-size: 2.25rem;
+            font-size: 1.75rem;
             font-weight: 800;
-            margin-bottom: 12px;
+            margin-bottom: 8px;
             background: linear-gradient(to right, #fff, var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -159,7 +167,7 @@
 
         .intro-section p {
             color: var(--text-secondary);
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             max-width: 700px;
             margin: 0 auto;
         }
@@ -174,11 +182,12 @@
         .player-wrapper {
             position: relative;
             background: #000;
-            border-radius: 20px;
+            border-radius: 16px;
             overflow: hidden;
             aspect-ratio: 16 / 9;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
             border: 2px solid var(--border);
+            max-height: 55vh;
         }
 
         video {
@@ -236,34 +245,125 @@
             opacity: 1;
         }
 
-        footer {
-            padding: 40px 5%;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            border-top: 1px solid var(--border);
-            margin-top: 40px;
+        .header-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
         }
 
+        .live-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--live-red);
+            border-radius: 50%;
+            animation: pulse 1s infinite alternate;
+            box-shadow: 0 0 6px rgba(239, 68, 68, 0.6);
+        }
+
+        .live-text {
+            color: var(--live-red);
+            font-weight: 800;
+            letter-spacing: 1px;
+            font-size: 0.75rem;
+        }
+
+        .live-divider {
+            width: 1px;
+            height: 14px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        footer {
+            padding: 16px 5%;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+        }
+
+        /* Desktop */
+        @media (min-width: 1024px) {
+            .intro-section h1 { font-size: 2rem; }
+            .intro-section p { font-size: 1rem; }
+            .player-wrapper { max-height: 60vh; }
+        }
+
+        /* Tablet */
+        @media (max-width: 1023px) and (min-width: 641px) {
+            header { padding: 0.75rem 4%; }
+            main { padding: 16px 4%; gap: 12px; }
+            .intro-section h1 { font-size: 1.5rem; }
+            .intro-section p { font-size: 0.9rem; }
+            .player-wrapper { border-radius: 14px; }
+        }
+
+        /* Mobile */
         @media (max-width: 640px) {
-            header { padding: 1rem 15px; }
-            main { padding: 20px 15px; }
-            .intro-section h1 { font-size: 1.75rem; }
-            .intro-section p { font-size: 0.95rem; }
+            header { padding: 0.6rem 12px; }
+            .logo { font-size: 0.85rem; gap: 6px; }
+            .logo img { height: 30px !important; }
+            .header-right { gap: 6px; }
+            .live-badge { padding: 4px 8px; font-size: 0.7rem; gap: 4px; }
+            .live-text { font-size: 0.65rem; }
+            .live-dot { width: 6px; height: 6px; }
+            #share-btn { padding: 6px 10px !important; font-size: 0.75rem; }
+            main { padding: 10px 12px; gap: 8px; }
+            .intro-section { padding: 6px 0; }
+            .intro-section h1 { font-size: 1.2rem; margin-bottom: 4px; }
+            .intro-section p { font-size: 0.8rem; }
+            .player-wrapper { border-radius: 10px; max-height: 50vh; }
+            footer { padding: 10px 12px; font-size: 0.7rem; }
+        }
+
+        /* Very small phones */
+        @media (max-width: 380px) {
+            .logo { font-size: 0.75rem; }
+            .logo img { height: 26px !important; }
+            .intro-section h1 { font-size: 1rem; }
+            .intro-section p { font-size: 0.75rem; }
+            #share-btn span { display: none; }
+        }
+
+        /* Landscape mobile - fit everything in viewport */
+        @media (max-height: 500px) {
+            .intro-section { padding: 2px 0; }
+            .intro-section h1 { font-size: 1rem; margin-bottom: 2px; }
+            .intro-section p { display: none; }
+            main { padding: 6px 12px; gap: 6px; }
+            header { padding: 0.4rem 12px; }
+            .logo img { height: 26px !important; }
+            .player-wrapper { max-height: 65vh; }
+            footer { padding: 6px 12px; font-size: 0.65rem; }
         }
     </style>
 </head>
 <body>
 
 <header>
-    <a href="#" class="logo"><i data-lucide="tv"></i> YARANI<span> LIVE TV</span></a>
-    <div style="display: flex; gap: 15px; align-items: center;">
-        <span style="font-size: 0.85rem; color: var(--text-secondary); font-weight: 600; display: flex; align-items: center; gap: 6px;" id="viewer-container">
-            <span style="width: 6px; height: 6px; background: var(--live-red); border-radius: 50%; animation: pulse 1s infinite alternate;"></span>
-            <span id="viewer-count">...</span> Watching Now
+    <a href="#" class="logo"><img src="img.png" alt="Yarani Live TV" style="height: 40px; object-fit: contain; border-radius: 50%;"> Yarani TV</a>
+    <div class="header-right">
+        <span class="live-badge" id="viewer-container">
+            <span class="live-dot"></span>
+            <span class="live-text">LIVE</span>
+            <span class="live-divider"></span>
+            <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
+            <span id="viewer-count"> </span>
         </span>
         <button id="share-btn" style="background: var(--accent); color: var(--bg-dark); border: none; padding: 8px 16px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: opacity 0.2s;">
-            <i data-lucide="share-2" style="width: 16px;"></i> Share
+            <i data-lucide="share-2" style="width: 16px;"></i> <span>Share</span>
         </button>
     </div>
 </header>
@@ -284,6 +384,7 @@
             </div>
             
             <video id="video" controls autoplay playsinline poster="https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=1200&auto=format&fit=crop"></video>
+
         </div>
     </div>
 </main>
