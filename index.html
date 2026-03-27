@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="img.png">
-    <title>Yarani Live TV - T20 World Cup 2026</title>
+    <title>Yarani TV - PSL 2026</title>
     <!-- HLS.js for stream playback -->
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <!-- Lucide Icons -->
@@ -99,7 +99,7 @@
             background-color: var(--bg-dark);
             color: var(--text-primary);
             line-height: 1.5;
-            overflow-x: hidden;
+            overflow: hidden;
             height: 100vh;
             height: 100dvh;
             display: flex;
@@ -146,7 +146,7 @@
             max-width: 1100px;
             margin: 0 auto;
             width: 100%;
-            min-height: 100vh;
+            overflow: hidden;
             justify-content: center;
         }
 
@@ -369,7 +369,7 @@
 <main>
     <!-- Introduction Section -->
     <div class="intro-section">
-        <h1>T20 World Cup 2026</h1>
+        <h1>PSL 2026</h1>
        
     </div>
 
@@ -390,7 +390,7 @@
 <div id="share-toast">Link Copied! Share with friends.</div>
 
 <footer>
-    <p>&copy; 2026 Yarani Live TV. All Rights Reserved. Catch all ICC T20 World Cup 2026 matches live right here.</p>
+    <p>&copy; 2026 Yarani Live TV. All Rights Reserved. Catch all ICC PSL 2026 matches live right here.</p>
 </footer>
 
 <script>
@@ -410,8 +410,8 @@
     // --- Functional Share Button ---
     shareBtn.addEventListener('click', async () => {
         const shareData = {
-            title: 'Yarani Live TV',
-            text: 'Watching T20 World Cup 2026 Live on Yarani TV! Join me for the action.',
+            title: 'Yarani TV',
+            text: 'Watching PSL 2026 Live on Yarani TV! Join me for the action.',
             url: window.location.href
         };
 
